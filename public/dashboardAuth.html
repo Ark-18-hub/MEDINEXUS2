@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Authority Dashboard - MediNexus</title>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f5f5; color: #333; }
+    header { background: #2f73ff; color: white; padding: 20px; text-align: center; font-size: 2rem; }
+    nav { display: flex; justify-content: space-around; background: #eaeaea; padding: 15px; }
+    nav button { background: #2f73ff; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; font-size: 1rem; }
+    nav button:hover { background: #1e59d9; }
+
+    .tab-content { display: none; padding: 20px; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+<header id="headerTitle">Authority Dashboard</header>
+
+<nav>
+  <button onclick="openTab('dashboard')">Dashboard</button>
+
+  <!-- ⭐ UPDATED BUTTON — Opens Beds.html page -->
+  <button onclick="window.location.href='Beds.html'">Authority Control</button>
+
+  <button onclick="openTab('patients')">Patient Data</button>
+  <button onclick="openTab('track')">Live Track</button>
+</nav>
+
+
+<!-- Dashboard -->
+<div id="dashboard" class="tab-content active">
+  <h2 id="greeting">Hello, Authority 👋</h2>
+  <p>Welcome to your Hospital Control Panel.</p>
+</div>
+
+<!-- Authority Controls -->
+<div id="authority" class="tab-content">
+  <h2>Authority Controls</h2>
+
+  <div class="card">
+    <h3>Update Hospital Resources</h3>
+    <p>Manage beds, ventilators, ambulance availability, and departments.</p>
+  </div>
+
+  <div class="card">
+    <h3>Emergency Handling</h3>
+    <p>Respond to incoming emergency alerts from users in real-time.</p>
+  </div>
+</div>
+
+<!-- Patient Data -->
+<div id="patients" class="tab-content">
+  <h2>Patient Data</h2>
+
+  <div class="card">
+    <h3>Recent Emergency Cases</h3>
+    <p>Fetch and display emergency reports linked to your hospital.</p>
+  </div>
+
+  <div class="card">
+    <h3>Daily Patient Stats</h3>
+    <p>Track patient admission count, ICU load, and discharge records.</p>
+  </div>
+</div>
+
+<!-- Live Tracking -->
+<div id="track" class="tab-content">
+  <h2>Live Tracking</h2>
+
+  <div class="card">
+    <h3>Live Patient Health Monitor</h3>
+    <p>Real-time Heart Rate & Oxygen (SpO2) Data</p>
+
+    <!-- LIVE HEART RATE CHART -->
+    <iframe 
+      id="heartFrame"
+      width="100%" 
+      height="350"
+      style="border:none;"
+      src="">
+    </iframe>
+
+    <br>
+
+    <!-- LIVE OXYGEN LEVEL CHART -->
+    <iframe 
+      id="oxygenFrame"
+      width="100%" 
+      height="350"
+      style="border:none;"
+      src="">
+    </iframe>
+
+    <br><br>
+
+    <button onclick="reloadLiveGraphs()" 
+            style="padding:10px 20px;background:#2f73ff;color:white;border:none;border-radius:5px;">
+      Refresh Live Data
+    </button>
+
+  </div>
+</div>
+
+
+<script>
+/* -------------------- TAB HANDLER -------------------- */
+function openTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+/* -------------------- GREETING SYSTEM -------------------- */
+
+function applyGreeting(name) {
+  const finalName = name && name.trim() ? name : "Authority";
+  document.getElementById("greeting").innerText = `Hello, ${finalName} 👋`;
+}
+
+function cacheAuthorityLocally(data) {
+  if (data && typeof data === "object") {
+    if (data.hospitalName) localStorage.setItem("hospitalName", data.hospitalName);
+    localStorage.setItem("authority", JSON.stringify(data));
+  }
+}
+
+async function loadAuthority() {
+  try {
+    const res = await fetch("/authority/me", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      cacheAuthorityLocally(data);
+      applyGreeting(data.hospitalName);
+      return;
+    }
+  } catch (err) {
+    console.warn("Authority fetch failed:", err);
+  }
+
+  // fallback
+  const cached = localStorage.getItem("authority");
+  if (cached) {
+    try {
+      const authority = JSON.parse(cached);
+      applyGreeting(authority.hospitalName);
+      return;
+    } catch (_) {}
+  }
+
+  applyGreeting(localStorage.getItem("hospitalName"));
+}
+
+// Instant load + backend refresh
+(function bootstrap() {
+  const quickName = localStorage.getItem("hospitalName") || "Authority";
+  applyGreeting(quickName);
+  loadAuthority();
+})();
+
+/* -------------------- LIVE TRACKING (ThingSpeak Graphs) -------------------- */
+
+// Your ThingSpeak CHANNEL ID
+const channelID = "2873706"; 
+// Example: const channelID = "2574824";
+
+// Field 1 = Heart Rate
+// Field 2 = SpO2
+
+function loadLiveGraphs() {
+  document.getElementById("heartFrame").src =
+    `https://thingspeak.com/channels/${channelID}/charts/1?dynamic=true&results=10&title=Heart Rate`;
+
+  document.getElementById("oxygenFrame").src =
+    `https://thingspeak.com/channels/${channelID}/charts/2?dynamic=true&results=10&title=SpO2`;
+}
+
+// Manual reload button
+function reloadLiveGraphs() {
+  loadLiveGraphs();
+}
+
+// Load automatically when user opens tab
+document.querySelector("button[onclick=\"openTab('track')\"]")
+  .addEventListener("click", loadLiveGraphs);
+
+async function fetchChannelAndLoad() {
+  const authorityId = localStorage.getItem("userId");
+
+  const res = await fetch(`/authority/live-channel?authorityId=${authorityId}`);
+  const data = await res.json();
+
+  if (data.channel) {
+    channelID = data.channel;
+    loadLiveGraphs();
+  } else {
+    alert("No patient assigned for live monitoring.");
+  }
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Authority Control</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 25px;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: center;
+    }
+
+    th {
+      background: #6c8bff;
+      color: white;
+    }
+
+    input {
+      width: 70px;
+      padding: 6px;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 20px;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    button:hover {
+      background: #1e7d33;
+    }
+
+    #msg {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Hospital Resource Control Panel</h2>
+  <p style="text-align:center">Update real-time resource availability.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Total</th>
+        <th>Available</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>Beds</td>
+        <td><span id="totalBeds"></span></td>
+        <td><input type="number" id="availableBeds"></td>
+      </tr>
+
+      <tr>
+        <td>ICU Beds</td>
+        <td><span id="icuBeds"></span></td>
+        <td><input type="number" id="availableICU"></td>
+      </tr>
+
+      <tr>
+        <td>Ambulances</td>
+        <td><span id="ambulances"></span></td>
+        <td><input type="number" id="availableAmb"></td>
+      </tr>
+
+      <tr>
+        <td>Doctors</td>
+        <td><span id="doctors"></span></td>
+        <td><input type="number" id="availableDoctors"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button onclick="updateData()">Update</button>
+
+  <div id="msg"></div>
+
+<script>
+  const username = localStorage.getItem("authorityUsername");
+
+  if (!username) {
+    alert("Login expired! Please login again.");
+    window.location.href = "/authorityLogin.html";
+  }
+
+  async function loadHospitalData() {
+    try {
+      const res = await fetch(`/authority/info?username=${username}`);
+      const data = await res.json();
+
+      if (!data.success) {
+        alert("Failed to load data");
+        return;
+      }
+
+      document.getElementById("totalBeds").innerText = data.hospital.totalBeds;
+      document.getElementById("icuBeds").innerText = data.hospital.icuBeds;
+      document.getElementById("ambulances").innerText = data.hospital.ambulances;
+      document.getElementById("doctors").innerText = data.hospital.doctors;
+
+      document.getElementById("availableBeds").value = data.hospital.availableBeds;
+      document.getElementById("availableICU").value = data.hospital.availableICU;
+      document.getElementById("availableAmb").value = data.hospital.availableAmb;
+      document.getElementById("availableDoctors").value = data.hospital.availableDoctors;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function updateData() {
+    const body = {
+      username,
+      availableBeds: document.getElementById("availableBeds").value,
+      availableICU: document.getElementById("availableICU").value,
+      availableAmb: document.getElementById("availableAmb").value,
+      availableDoctors: document.getElementById("availableDoctors").value
+    };
+
+    const res = await fetch("/authority/updateAvailability", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    const msg = document.getElementById("msg");
+    const data = await res.json();
+
+    msg.style.display = "block";
+    msg.style.color = data.success ? "green" : "red";
+    msg.innerText = data.message;
+  }
+
+  loadHospitalData();
+</script>
+
+</body>
+</html>

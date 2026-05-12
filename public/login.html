@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediNexus Login</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      position: relative;
+    }
+
+    .emergency-banner {
+      position: absolute;
+      top: 30px;
+      background: linear-gradient(to right, #ff0000, #ff6600);
+      color: white;
+      font-weight: bold;
+      font-size: 2rem;
+      padding: 15px 50px;
+      border-radius: 8px;
+      transform: skew(-10deg);
+      box-shadow: 0 0 20px rgba(255, 0, 0, 0.7);
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .emergency-banner span {
+      display: inline-block;
+      transform: skew(10deg);
+    }
+
+    .emergency-banner::before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 15px solid #ff0000;
+    }
+
+    .container {
+      display: flex;
+      width: 900px;
+      height: 500px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      margin-top: 80px;
+    }
+
+    .form-section {
+      background-color: #1f1f1f;
+      flex: 1;
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .form-section h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .form-section p {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    .form-section input {
+      padding: 12px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: #2a2a2a;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .form-section a.forgot {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #6c8bff;
+      text-decoration: none;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .form-section button {
+      padding: 12px;
+      border: none;
+      background-color: #6c8bff;
+      color: white;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .form-section .signup {
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .form-section .signup a {
+      color: #6c8bff;
+      text-decoration: none;
+    }
+
+    .image-section {
+      flex: 1;
+      background-color: #7b61ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .image-section img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Emergency Banner -->
+  <div class="emergency-banner" onclick="window.location.href='emergency1.html'">
+    <span>EMERGENCY</span>
+  </div>
+
+  <!-- Main Container -->
+  <div class="container">
+    <div class="form-section">
+      <h2>Login</h2>
+      <p>Enter your account details</p>
+      <form id="loginForm">
+        <input type="text" name="user_name" placeholder="Username" required />
+        <input type="password" name="user_password" placeholder="Password" required />
+        <a class="forgot" href="forgetpassword.html">Forgot Password?</a>
+        <button type="submit">Login</button>
+      </form>
+      <div class="signup">
+        Don’t have an account? <a href="signin.html">Sign up</a>
+      </div>
+    </div>
+    <div class="image-section">
+      <img src="https://imgcdn.stablediffusionweb.com/2024/9/10/1bb656b0-9ca3-42b2-9d5e-687865558bc4.jpg" alt="Emergency Illustration">
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = {
+        user_name: form.user_name.value,
+        user_password: form.user_password.value
+      };
+
+      try {
+        const response = await fetch("/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+  localStorage.setItem("user_name", data.user.user_name);
+  localStorage.setItem("mobile", data.user.mobile);
+  localStorage.setItem("blood_group", data.user.blood_group);
+  alert(data.message);
+  window.location.href = "dashboard.html";
+}
+ else {
+          alert(data.message || "Login failed.");
+        }
+      } catch (error) {
+        alert("An error occurred. Please try again.");
+      }
+    });
+  </script>
+
+</body>
+</html>

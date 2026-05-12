@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Emergency Report</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      color: #333;
+      padding: 30px;
+    }
+    h2 { color: #c00; text-align: center; }
+    
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background: #c00;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover { background: #a00; }
+
+    #locationSection {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f1f1f1;
+      border-radius: 5px;
+      display: none;
+    }
+
+    #locationSection button {
+      width: auto;
+      background: #007bff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #locationSection button:hover { background: #0056b3; }
+
+    #statusMsg, #errorMsg {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    #statusMsg { color: green; }
+    #errorMsg { color: red; }
+
+    #result {
+      margin-top: 20px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>🚨 Emergency Report</h2>
+
+  <form id="emergencyForm" enctype="multipart/form-data">
+
+    <!-- Reporting Details -->
+    <label>Reporting for:</label>
+    <select name="reportingFor" required>
+      <option value="">-- Select --</option>
+      <option value="you">You</option>
+      <option value="family">Family</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label>Emergency Type:</label>
+    <select name="emergencyType" required>
+      <option value="">-- Select Emergency --</option>
+      <option value="injury">Injury</option>
+      <option value="heart">Heart Issue</option>
+      <option value="accident">Accident</option>
+      <option value="other">Other</option>
+    </select>
+
+    <!-- Patient Info -->
+    <label>Patient Name:</label>
+    <input type="text" name="patientName" placeholder="Enter name" required />
+
+    <label>Mobile Number:</label>
+    <input type="tel" name="mobile" placeholder="Enter mobile number" required />
+
+    <label>Blood Group:</label>
+    <input type="text" name="bloodGroup" placeholder="Enter blood group" required />
+
+    <!-- Ambulance -->
+    <label>Need Ambulance?</label>
+    <select id="ambulance" name="ambulance" onchange="toggleLocation()" required>
+      <option value="">-- Select --</option>
+      <option value="Yes">Yes</option>
+      <option value="No">No</option>
+    </select>
+
+    <!-- Location -->
+    <div id="locationSection">
+      <button type="button" onclick="getLocation()">📍 Get My Location</button>
+      <p id="locationOutput"></p>
+    </div>
+
+    <!-- YOLO Image -->
+    <label>Upload Injury Image:</label>
+    <input type="file" name="injuryImage" accept="image/*" required />
+
+    <button type="submit">Submit Emergency</button>
+
+    <p id="statusMsg"></p>
+    <p id="errorMsg"></p>
+    <h3 id="result"></h3>
+  </form>
+
+  <script>
+    /* Show / Hide Location Section */
+    function toggleLocation() {
+      const ambulance = document.getElementById("ambulance").value;
+      document.getElementById("locationSection").style.display =
+        ambulance === "Yes" ? "block" : "none";
+    }
+
+    /* Get Browser Location */
+    function getLocation() {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported by your browser.");
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(position => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+
+        document.getElementById("locationOutput").innerText = 
+          `📍 Location: ${lat}, ${lon}`;
+
+        const form = document.getElementById("emergencyForm");
+
+        // Create/Update hidden inputs
+        createHiddenInput(form, "latitude", lat);
+        createHiddenInput(form, "longitude", lon);
+      });
+    }
+
+    function createHiddenInput(form, name, value) {
+      let input = form.querySelector(`input[name='${name}']`);
+      if (!input) {
+        input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        form.appendChild(input);
+      }
+      input.value = value;
+    }
+
+    /* Auto-fill user details */
+    document.querySelector("select[name='reportingFor']")
+      .addEventListener("change", async (e) => {
+        if (e.target.value !== "you") return;
+
+        try {
+          const res = await fetch("/auth/me");
+          if (!res.ok) return useLocalStorageFallback();
+
+          const user = await res.json();
+          document.querySelector("input[name='patientName']").value = user.user_name || "";
+          document.querySelector("input[name='mobile']").value = user.mobile || "";
+          document.querySelector("input[name='bloodGroup']").value = user.blood_group || "";
+
+          localStorage.setItem("user_name", user.user_name || "");
+          localStorage.setItem("mobile", user.mobile || "");
+          localStorage.setItem("blood_group", user.blood_group || "");
+
+        } catch {
+          useLocalStorageFallback();
+        }
+      });
+
+    function useLocalStorageFallback() {
+      document.querySelector("input[name='patientName']").value =
+        localStorage.getItem("user_name") || "";
+      document.querySelector("input[name='mobile']").value =
+        localStorage.getItem("mobile") || "";
+      document.querySelector("input[name='bloodGroup']").value =
+        localStorage.getItem("blood_group") || "";
+    }
+
+    /* Submit Emergency Form */
+    document.getElementById("emergencyForm")
+      .addEventListener("submit", async (e) => {
+
+        e.preventDefault();
+        const formData = new FormData(e.target);
+
+        try {
+          const res = await fetch("/emergency/submit", {
+            method: "POST",
+            body: formData
+          });
+
+          const data = await res.json();
+
+if (res.ok) {
+    document.getElementById("statusMsg").innerText =
+      "✅ Emergency submitted successfully!";
+    document.getElementById("errorMsg").innerText = "";
+
+    document.getElementById("result").innerText =
+      `Injury Detection Result: ${data.detection || "No result"} (File: ${data.uploadedFile})`;
+
+// ⭐ RESET old hospital link to avoid wrong redirection ⭐
+localStorage.removeItem("nearestHospitalLink");
+
+// ⭐ SAVE NEW hospital location ⭐
+if (data.hospitalMapLink) {
+    localStorage.setItem("nearestHospitalLink", data.hospitalMapLink);
+    console.log("Saved Hospital Map Link:", data.hospitalMapLink);
+}
+
+
+    // Reset form
+    e.target.reset();
+    document.getElementById("locationSection").style.display = "none";
+    document.getElementById("locationOutput").innerText = "";
+} else {
+            document.getElementById("errorMsg").innerText =
+              "❌ Failed: " + (data.error || "Unknown error");
+          }
+
+        } catch {
+          document.getElementById("errorMsg").innerText =
+            "❌ Network error while submitting.";
+        }
+      });
+  </script>
+
+</body>
+</html>

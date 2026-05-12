@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Receipt</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { text-align: center; }
+    .receipt-box {
+      border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 500px; margin: auto;
+    }
+    .line { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Receipt</h2>
+  <div class="receipt-box" id="receipt"></div>
+
+  <script>
+    async function loadReceipt() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      const type = params.get("type");
+      if (!id || !type) return;
+
+      const res = await fetch(`/${type}/${id}`);
+      if (res.ok) {
+        const data = await res.json();
+        const box = document.getElementById("receipt");
+        box.innerHTML = `
+          <div class="line"><b>Patient Name:</b> ${data.name}</div>
+          <div class="line"><b>Mobile:</b> ${data.mobile}</div>
+          <div class="line"><b>Blood Group:</b> ${data.blood_group}</div>
+          ${data.duration_days ? `<div class="line"><b>Symptom Duration:</b> ${data.duration_days} days</div>` : ""}
+          <div class="line"><b>Ambulance Required:</b> ${data.ambulance_required}</div>
+          <div class="line"><b>Prescription:</b> ${data.prescription_image ? data.prescription_image : "Not Uploaded"}</div>
+          <div class="line"><b>Reported At:</b> ${new Date(data.timestamp).toLocaleString()}</div>
+        `;
+      }
+    }
+    loadReceipt();
+  </script>
+</body>
+</html>

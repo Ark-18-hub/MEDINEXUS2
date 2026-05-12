@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MediNexus - Front Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to bottom, #007bff, #0056b3);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    /* Splash Popup */
+    .popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #001f3f;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeOut 1s ease 3s forwards;
+    }
+
+    .popup-box {
+      background-color: white;
+      border-radius: 20px;
+      padding: 50px 40px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      max-width: 350px;
+    }
+
+    .popup-box img {
+      width: 160px;
+      height: auto;
+      margin-bottom: 25px;
+    }
+
+    .popup-box h1 {
+      font-size: 22px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    .container {
+      display: flex;
+      width: 900px;
+      background-color: #fff;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #007bff, #0046ad);
+      opacity: 0.8;
+      z-index: 0;
+    }
+
+    .circle.circle1 {
+      width: 250px;
+      height: 250px;
+      top: -50px;
+      left: -50px;
+    }
+
+    .circle.circle2 {
+      width: 150px;
+      height: 150px;
+      bottom: 20px;
+      left: 100px;
+    }
+
+    .circle.circle3 {
+      width: 100px;
+      height: 100px;
+      bottom: -30px;
+      right: -30px;
+      background: radial-gradient(circle at center, #007bff, #0056b3);
+    }
+
+    .role-section {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .role-section h1 {
+      margin-bottom: 30px;
+      font-size: 32px;
+      color: #333;
+    }
+
+    .role-buttons {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .role-button {
+      width: 140px;
+      height: 140px;
+      background-color: #0046ad;
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .role-button:hover {
+      background-color: #005be0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Splash Popup with Logo -->
+  <div class="popup" id="splash">
+    <div class="popup-box">
+      <h1>Welcome to</h1>
+      <img src="logoimage.jpg" alt="MediNexus Logo">
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <div class="circle circle1"></div>
+    <div class="circle circle2"></div>
+    <div class="circle circle3"></div>
+
+    <div class="role-section">
+      <h1>Login as:</h1>
+      <div class="role-buttons">
+        <button class="role-button" onclick="selectRole('patient')">Patient</button>
+        <button class="role-button" onclick="selectRole('authority')">Authority</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    setTimeout(() => {
+      document.getElementById('splash').style.display = 'none';
+    }, 4000);
+
+    function selectRole(role) {
+      if (role === "patient") {
+        window.location.href = "login.html";
+      } else if (role === "authority") {
+        window.location.href = "authorityLogin.html"; // change to your authority page
+      }
+    }
+  </script>
+</body>
+</html>

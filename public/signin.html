@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediNexus Sign Up</title>
+  <style>
+    * {margin: 0;padding: 0;box-sizing: border-box;font-family: 'Segoe UI', sans-serif;}
+    body {background-color: #121212;color: #fff;display: flex;justify-content: center;align-items: center;height: 100vh;}
+    .container {display: flex;width: 900px;height: 600px;border-radius: 15px;overflow: hidden;box-shadow: 0 0 20px rgba(0,0,0,0.3);}
+    .form-section {background-color: #1f1f1f;flex: 1;padding: 60px 40px;display: flex;flex-direction: column;justify-content: center;}
+    .form-section h2 {font-size: 2rem;margin-bottom: 10px;}
+    .form-section p {font-size: 1rem;color: #aaa;margin-bottom: 30px;}
+    .form-section input, .form-section select {
+      padding: 12px;margin-bottom: 20px;border: none;border-radius: 8px;background-color: #2a2a2a;color: #fff;font-size: 1rem;}
+    .form-section button {padding: 12px;border: none;background-color: #6c8bff;color: white;font-size: 1rem;border-radius: 8px;cursor: pointer;margin-top: 10px;}
+    .form-section .login {text-align: center;font-size: 0.9rem;margin-top: 10px;}
+    .form-section .login a {color: #6c8bff;text-decoration: none;}
+    .image-section {flex: 1;background-color: #7b61ff;display: flex;justify-content: center;align-items: center;}
+    .image-section img {width: 80%;max-width: 350px;border-radius: 10px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-section">
+      <h2>Register</h2>
+      <p>Create your account</p>
+      <form id="signupForm">
+        <input type="text" name="user_name" placeholder="Name" required>
+        <input type="number" name="age" placeholder="Age" required>
+        <input type="email" name="email" placeholder="E-mail" required>
+        <select name="blood_group" required>
+          <option value="">Select Blood Group</option>
+          <option value="A+">A+</option><option value="A-">A-</option>
+          <option value="B+">B+</option><option value="B-">B-</option>
+          <option value="O+">O+</option><option value="O-">O-</option>
+          <option value="AB+">AB+</option><option value="AB-">AB-</option>
+        </select>
+        <input type="text" name="mobile" placeholder="Mobile Number" required>
+        <input type="password" name="user_password" placeholder="Password" required>
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+        <button type="submit">Register</button>
+      </form>
+      <div class="login">Already have an account? <a href="login.html">Login</a></div>
+    </div>
+    <div class="image-section">
+      <img src="https://d2jx2rerrg6sh3.cloudfront.net/images/Article_Images/ImageForArticle_22427_16510744422812433.jpg" alt="Register Illustration">
+    </div>
+  </div>
+  <script>
+document.getElementById("signupForm").addEventListener("submit", async function (e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = {
+    user_name: form.user_name.value.trim(),
+    age: form.age.value.trim(),
+    email: form.email.value.trim(),
+    blood_group: form.blood_group.value.trim(),
+    mobile: form.mobile.value.trim(),
+    user_password: form.user_password.value.trim(),
+    confirmPassword: form.confirmPassword.value.trim(),
+  };
+
+  // Check for empty fields
+  for (const key in formData) {
+    if (formData[key] === "") {
+      alert("All fields are required.");
+      return;
+    }
+  }
+
+  // Check if passwords match
+  if (formData.user_password !== formData.confirmPassword) {
+    alert("Passwords do not match.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      alert("Registered Successfully!");
+      window.location.href = "login.html";
+    } else {
+      alert(data.message || "Registration failed.");
+    }
+  } catch (error) {
+    alert("An error occurred. Please try again.");
+  }
+});
+
+  </script>
+</body>
+</html>

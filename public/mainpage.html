@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediNexus</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f9fb;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #ffffff;
+      padding: 10px 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      height: 60px;
+    }
+    .nav-buttons {
+      display: flex;
+      gap: 15px;
+    }
+    .nav-buttons button {
+      padding: 10px 18px;
+      background-color: #0046ad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.3s;
+    }
+    .nav-buttons button:hover {
+      background-color: #00358a;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logoimage.jpg" alt="MediNexus Logo" class="logo" />
+    <div class="nav-buttons">
+      <button class="nav-buttons" onclick="location.href='appointmentbooking.html'">Appointment</button>
+      <button class="nav-buttons" onclick="location.href='findhosptal.html'">Find Hospital</button>
+      <button>Symptoms</button>
+      <button>Blogs</button>
+    </div>
+  </header>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Symptoms Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .form-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 420px;
+    }
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #1976d2;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input[type="text"], input[type="tel"], input[type="number"],
+    select, input[type="file"], button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #125ea2;
+    }
+    #locationOutput {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #444;
+    }
+    #receipt {
+      margin-top: 16px;
+      background:#fff;
+      border-radius:8px;
+      padding:16px;
+      box-shadow:0 0 8px rgba(0,0,0,.08);
+    }
+    #receipt h3 {
+      margin-top:0;
+      color:#1976d2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>🩺 Symptoms Report</h2>
+
+    <form id="symptomForm" method="post" enctype="multipart/form-data" novalidate>
+      <label>Reporting For:</label>
+      <select name="reportingFor" id="reportingFor" required>
+        <option value="">Select</option>
+        <option value="you">You</option>
+        <option value="family">Family Member</option>
+      </select>
+
+      <label>Select Symptom:</label>
+      <select name="symptomType" required>
+        <option value="">Select Symptom</option>
+        <option value="fever">Fever</option>
+        <option value="cough">Cough</option>
+        <option value="cold">Cold</option>
+        <option value="allergy">Allergy</option>
+        <option value="infection">Infection</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Number of Days (mandatory):</label>
+      <input type="number" name="days" placeholder="Enter number of days" min="1" required>
+
+      <label>Upload Prescription / Allergy Image (optional):</label>
+      <input type="file" name="prescriptionImage" accept="image/*">
+
+      <label>Patient Name:</label>
+      <input type="text" name="patientName" placeholder="Enter name" required>
+
+      <label>Mobile Number:</label>
+      <input type="tel" name="mobile" placeholder="Enter mobile number" required>
+
+      <label>Blood Group:</label>
+      <input type="text" name="bloodGroup" placeholder="Enter blood group" required>
+
+      <label>Need Ambulance?</label>
+      <select name="ambulance" id="ambulance" onchange="toggleLocation()" required>
+        <option value="">Select</option>
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+      </select>
+
+      <div id="locationSection" style="display: none;">
+        <button type="button" id="btnGeo">Enable Location</button>
+        <p id="locationOutput"></p>
+      </div>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <div id="receipt" hidden></div>
+  </div>
+
+  <script>
+    function toggleLocation() {
+      const ambulance = document.getElementById("ambulance").value;
+      document.getElementById("locationSection").style.display =
+        ambulance === "Yes" ? "block" : "none";
+    }
+
+    // Optional geolocation support
+    document.getElementById("btnGeo").addEventListener("click", function () {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported by your browser.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(function(position) {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        document.getElementById("locationOutput").innerText =
+          `📍 Location: ${lat}, ${lon}`;
+        const form = document.getElementById("symptomForm");
+        let latInput = form.querySelector("input[name='latitude']");
+        if (!latInput) {
+          latInput = document.createElement("input");
+          latInput.type="hidden";
+          latInput.name="latitude";
+          form.appendChild(latInput);
+        }
+        latInput.value = lat;
+        let lonInput = form.querySelector("input[name='longitude']");
+        if (!lonInput) {
+          lonInput = document.createElement("input");
+          lonInput.type="hidden";
+          lonInput.name="longitude";
+          form.appendChild(lonInput);
+        }
+        lonInput.value = lon;
+      });
+    });
+
+    // Autofill when ReportingFor = "You"
+    async function tryAutofillIfYou() {
+      const sel = document.getElementById("reportingFor");
+      if (sel.value !== "you") return;
+
+      try {
+        // Call secure endpoint
+        const res = await fetch("/auth/me");
+        if (res.ok) {
+          const user = await res.json();
+          document.querySelector("input[name='patientName']").value =
+            user.user_name || "";
+          document.querySelector("input[name='mobile']").value =
+            user.mobile || "";
+          document.querySelector("input[name='bloodGroup']").value =
+            user.blood_group || "";
+
+          // Save minimal to localStorage as fallback
+          localStorage.setItem("username", user.user_name || "");
+          localStorage.setItem("mobile", user.mobile || "");
+          localStorage.setItem("blood_group", user.blood_group || "");
+          return;
+        }
+      } catch(e) {
+        console.warn("Auth fetch failed, falling back to localStorage", e);
+      }
+
+      // fallback localStorage
+      document.querySelector("input[name='patientName']").value =
+        localStorage.getItem("username") || "";
+      document.querySelector("input[name='mobile']").value =
+        localStorage.getItem("mobile") || "";
+      document.querySelector("input[name='bloodGroup']").value =
+        localStorage.getItem("blood_group") || "";
+    }
+
+    document.getElementById("reportingFor")
+      .addEventListener("change", tryAutofillIfYou);
+
+    // Submit handler
+    document.getElementById("symptomForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        const fd = new FormData();
+        fd.append("name", form.patientName.value.trim());
+        fd.append("mobile", form.mobile.value.trim());
+        fd.append("blood_group", form.bloodGroup.value.trim());
+        fd.append("duration_days", form.days.value.trim());
+        fd.append("ambulance_required", form.ambulance.value);
+
+        const fileEl = form.querySelector("input[name='prescriptionImage']");
+        if (fileEl && fileEl.files && fileEl.files[0]) {
+          fd.append("prescription_image", fileEl.files[0]);
+        }
+
+        try {
+          const res = await fetch("/auth/symptoms", {
+            method: "POST",
+            body: fd
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            alert(data.message || "Failed to submit symptoms.");
+            return;
+          }
+
+          alert("✅ Symptoms report submitted successfully!");
+
+          // Show clean receipt
+          const r = data.receipt || {};
+          document.getElementById("receipt").hidden = false;
+          document.getElementById("receipt").innerHTML = `
+            <h3>Receipt</h3>
+            <p><strong>Patient Name:</strong> ${r.name || ""}</p>
+            <p><strong>Mobile Number:</strong> ${r.mobile || ""}</p>
+            <p><strong>Blood Group:</strong> ${r.blood_group || ""}</p>
+            <p><strong>Duration (days):</strong> ${r.duration_days || ""}</p>
+            <p><strong>Ambulance Required:</strong> ${r.ambulance_required || ""}</p>
+            <p><strong>Timestamp:</strong> ${r.timestamp || ""}</p>
+          `;
+
+          form.reset();
+          document.getElementById("locationSection").style.display = "none";
+          document.getElementById("locationOutput").textContent = "";
+        } catch (err) {
+          console.error(err);
+          alert("An error occurred. Please try again.");
+        }
+    });
+
+    // If "You" is pre-selected
+    if (document.getElementById("reportingFor").value === "you") {
+      tryAutofillIfYou();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Appointment</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .container {
+      display: flex;
+      width: 90%;
+      max-width: 1100px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
+    }
+
+    .form-section {
+      background-color: #1a1a1a;
+      flex: 1;
+      padding: 40px;
+    }
+
+    .form-section h1 {
+      font-size: 30px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .form-section p {
+      font-size: 16px;
+      color: #aaa;
+      margin-bottom: 30px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .form-section input,
+    .form-section select,
+    .form-section textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 16px;
+      background-color: #2a2a2a;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .form-section textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox input[type="checkbox"] {
+      margin-top: 5px;
+    }
+
+    .form-section button {
+      width: 100%;
+      background-color: #4c75f2;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .form-section button:hover {
+      background-color: #365edc;
+    }
+
+    .image-section {
+      flex: 1;
+      background-color: #8c5cf2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image-section img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 0;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .image-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Left Form Section -->
+    <div class="form-section">
+      <h1>Appointment</h1>
+      <p>Book your appointment</p>
+      <form>
+        <div class="form-row">
+          <input type="text" placeholder="Full Name" required />
+          <input type="number" placeholder="Age" required />
+        </div>
+        <select required>
+          <option disabled selected>Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+        <input type="tel" placeholder="Phone Number" required />
+        <input type="date" placeholder="Date of Appointment" required />
+         <!-- Time Slot Dropdown -->
+        <select required>
+          <option disabled selected>Select Time Slot</option>
+          <option>09:00 AM - 09:30 AM</option>
+          <option>10:00 AM - 10:30 AM</option>
+          <option>11:00 AM - 11:30 AM</option>
+          <option>02:00 PM - 02:30 PM</option>
+          <option>03:00 PM - 03:30 PM</option>
+        </select>
+        <textarea placeholder="Symptoms" required></textarea>
+
+        <div class="checkbox">
+          <input type="checkbox" id="consent" required />
+          <label for="consent">I agree to the <strong>terms and conditions</strong> and authorize the use of my health data for appointment purposes.
+          </label>
+        </div>
+
+        <button type="submit">Book Appointment</button>
+      </form>
+    </div>
+
+    <!-- Right Image Section -->
+    <div class="image-section">
+      <img src="E:\Programs\Final\public\image copy.jpg" alt="Doctor Consultation" />
+    </div>
+  </div>
+
+</body>
+</html>

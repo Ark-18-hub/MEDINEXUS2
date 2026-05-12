@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Registration Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2, h3 { text-align: center; color: #333; margin-bottom: 20px; }
+    label { font-weight: bold; display: block; margin-top: 12px; color: #444; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea { resize: vertical; }
+    .form-section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f9fbfd;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+    .submit-btn {
+      display: block;
+      margin: 20px auto 0;
+      width: 40%;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .submit-btn:hover { background: #1f7a34; }
+    .show-password {
+      margin: 8px 0;
+    }
+    .show-password label {
+      display:inline-flex;
+      align-items:center;
+      gap: 5px;
+      font-weight:normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Hospital Registration Form</h2>
+
+    <!-- BASIC INFO -->
+    <div class="form-section">
+      <h3>Basic Information</h3>
+
+      <label for="hospitalName">Hospital Name</label>
+      <input type="text" id="hospitalName" placeholder="Enter Hospital Name" required>
+
+      <label for="hospitalType">Hospital Type</label>
+      <select id="hospitalType" required>
+        <option value="">Select Hospital Type</option>
+        <option value="government">Government</option>
+        <option value="private">Private</option>
+        <option value="trust">Trust</option>
+        <option value="ngo">NGO</option>
+      </select>
+
+      <!-- REMOVED:
+           License Number
+           Establishment Year
+           Hospital Email -->
+
+      <input type="text" id="username" placeholder="Choose a username" required>
+      <input type="password" id="password" placeholder="Enter Password">
+      <input type="password" id="confirm-password" placeholder="Re-enter Password">
+
+      <div class="show-password">
+        <label>
+          <input type="checkbox" onclick="togglePassword()"> Show Password
+        </label>
+      </div>
+    </div>
+
+    <!-- LOCATION -->
+    <div class="form-section">
+      <h3>Location & Contact</h3>
+
+      <textarea id="address" rows="3" placeholder="Street address, building, etc."></textarea>
+      <input type="text" id="city" placeholder="Enter City">
+      <input type="text" id="state" placeholder="Enter State">
+      <input type="number" id="pin" placeholder="Enter PIN Code">
+      <input type="tel" id="phone" placeholder="e.g., +91 99999999">
+
+      <!-- REMOVED website field -->
+
+      <input type="number" step="0.0000001" id="longitude" placeholder="Enter Longitude">
+      <input type="number" step="0.0000001" id="latitude" placeholder="Enter Latitude">
+    </div>
+
+    <!-- CAPACITY -->
+    <div class="form-section">
+      <h3>Capacity & Infrastructure</h3>
+      <input type="number" id="totalBeds" placeholder="Enter total beds" min="0">
+      <input type="number" id="icuBeds" placeholder="Number of ICU beds" min="0">
+      <input type="number" id="ambulance" placeholder="Number of ambulances" min="0">
+      <input type="number" id="doctors" placeholder="Total doctors available" min="0">
+
+      <!-- REMOVED:
+           ventilators
+           nurses -->
+    </div>
+
+    <!-- REMOVED ENTIRE DEPARTMENT SECTION -->
+
+    <!-- SUBMIT -->
+    <button type="button" class="submit-btn" onclick="submitRegistration()">Submit Registration</button>
+  </div>
+
+<script>
+function togglePassword() {
+  const pw = document.getElementById('password');
+  const cpw = document.getElementById('confirm-password');
+  pw.type = (pw.type === 'password') ? 'text' : 'password';
+  cpw.type = pw.type;
+}
+
+async function submitRegistration() {
+  const formData = {
+    hospitalName: document.getElementById('hospitalName').value,
+    hospitalType: document.getElementById('hospitalType').value,
+    username:     document.getElementById('username').value,
+    password:     document.getElementById('password').value,
+    address:      document.getElementById('address').value,
+    city:         document.getElementById('city').value,
+    state:        document.getElementById('state').value,
+    pin:          document.getElementById('pin').value,
+    phone:        document.getElementById('phone').value,
+    longitude:    document.getElementById('longitude').value,
+    latitude:     document.getElementById('latitude').value,
+    totalBeds:    document.getElementById('totalBeds').value,
+    icuBeds:      document.getElementById('icuBeds').value,
+    ambulances:   document.getElementById('ambulance').value,
+    doctors:      document.getElementById('doctors').value
+  };
+
+  try {
+    const res = await fetch('/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await res.json();
+    alert(data.message || 'Registered!');
+  } catch (err) {
+    alert('Error submitting form');
+    console.error(err);
+  }
+}
+</script>
+
+</body>
+</html>
