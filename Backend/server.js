@@ -16,7 +16,7 @@ const PORT = 5000;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public"))); // serve HTML/CSS/JS
+app.use(express.static(path.join(__dirname, "..", "Frontend"))); // serve HTML/CSS/JS
 
 // ------------------ File Upload Config ------------------
 const UPLOAD_PATH = path.join(__dirname, "test_images");
@@ -308,7 +308,7 @@ app.post("/authority-login", async (req, res) => {
 
 // Serve Authority Dashboard
 app.get("/dashboardAuth", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "dashboardAuth.html"));
+  res.sendFile(path.join(__dirname, "..", "Frontend", "frontpage.html"));
 });
 // -------------------------------------------------------------
 // ✅ AUTHORITY DASHBOARD: LOAD HOSPITAL INFO + AVAILABILITY
@@ -433,7 +433,7 @@ app.get("/authority/live-channel", async (req, res) => {
 
 // ✅ Default route
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "frontpage.html"));
+res.sendFile(path.join(__dirname, "..", "Frontend", "frontpage.html"));
 });
 
 // ------------------ Start Server ------------------
